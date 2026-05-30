@@ -95,7 +95,7 @@ export default {
 				const feishuMessage = {
 					msg_type: 'text',
 					content: {
-						text: `【MR合并提醒】\n${actionIcon} ${actionText} - ${projectName}\n功能：${mrTitle}\n发起人：${userName}\n状态：${stateText}\n合并状态：${mergeStatusText}\n分支：\`${sourceBranch}\` → \`${targetBranch}\`\n项目：[${projectPath}](${projectUrl})`,
+						text: `【${actionIcon} ${actionText} - ${projectName}】\n功能：${mrTitle}\n发起人：${userName}\n状态：${stateText}\n合并状态：${mergeStatusText}\n分支：\`${sourceBranch}\` → \`${targetBranch}\`\n项目：${projectPath}: ${projectUrl}`,
 					},
 				};
 
