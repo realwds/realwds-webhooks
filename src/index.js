@@ -50,27 +50,22 @@ export default {
 				const projectUrl = projectInfo.web_url || repoInfo.homepage || '';
 
 				// 根据 MR 状态和动作优化消息内容
-				let actionIcon = '📝';
-				let actionText = 'MR更新';
+				let actionText = '';
 				switch (mrAction) {
 					case 'open':
-						actionIcon = '🔔';
-						actionText = '新的合并请求';
+						actionText = '🔔合并请求';
 						break;
 					case 'merge':
-						actionIcon = '✅';
-						actionText = '已合并';
+						actionText = '✅已合并';
 						break;
 					case 'close':
-						actionIcon = '❌';
-						actionText = '已关闭';
+						actionText = '❌合并已关闭';
 						break;
 					case 'reopen':
-						actionIcon = '🔄';
-						actionText = '重新打开';
+						actionText = '🔄合并重新打开';
 						break;
 					default:
-						actionText = 'MR更新';
+						actionText = '📝MR更新';
 				}
 
 				// 状态中文映射
@@ -84,18 +79,62 @@ export default {
 
 				// 合并状态映射
 				const mergeStatusMap = {
-					can_be_merged: '✅ 可以合并',
-					cannot_be_merged: '❌ 有冲突，无法合并',
+					can_be_merged: '可以合并',
+					cannot_be_merged: '有冲突，无法合并',
 					unchecked: '未检查',
 					checking: '检查中',
 				};
 				const mergeStatusText = mergeStatusMap[mergeStatus] || mergeStatus;
 
-				// 构建飞书消息
+				// 构建更美观的飞书消息（支持飞书富文本）
 				const feishuMessage = {
-					msg_type: 'text',
+					msg_type: 'post',
 					content: {
-						text: `【${actionIcon} ${actionText} - ${projectName}】\n功能：${mrTitle}\n发起人：${userName}\n状态：${stateText}\n合并状态：${mergeStatusText}\n分支：\`${sourceBranch}\` → \`${targetBranch}\`\n项目：${projectPath}: ${projectUrl}`,
+						post: {
+							zh_cn: {
+								title: `${actionText} - ${projectName}`,
+								content: [
+									[
+										{
+											tag: 'text',
+											text: `功能: ${mrTitle}\n`,
+										},
+									],
+									[
+										{
+											tag: 'text',
+											text: `发起人: ${userName}\n`,
+										},
+									],
+									[
+										{
+											tag: 'text',
+											text: `状态: ${stateText}\n`,
+										},
+									],
+									[
+										{
+											tag: 'text',
+											text: `合并状态: ${mergeStatusText}\n`,
+										},
+									],
+									[
+										{
+											tag: 'text',
+											text: `分支: ${sourceBranch} → ${targetBranch}\n`,
+										},
+									],
+
+									[
+										{
+											tag: 'a',
+											text: `${projectUrl}`,
+											href: mrUrl,
+										},
+									],
+								],
+							},
+						},
 					},
 				};
 
