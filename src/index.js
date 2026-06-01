@@ -2,6 +2,11 @@ export default {
 	async fetch(request, env, ctx) {
 		const url = new URL(request.url);
 
+		// 处理根路径 GET 请求（健康检查/默认响应）
+		if (request.method === 'GET' && url.pathname === '/') {
+			return new Response('Hello Webhooks!', { status: 200 });
+		}
+
 		// 处理 favicon.ico 请求（直接返回 404）
 		if (url.pathname === '/favicon.ico') {
 			return new Response(null, { status: 404 });
@@ -10,6 +15,13 @@ export default {
 		// 只处理 /gitlab-webhook 路径的 POST 请求
 		if (request.method === 'POST' && url.pathname === '/gitlab-webhook') {
 			try {
+				const gitlabData = await request.json();
+
+				// 过滤非 MR 事件
+				if (gitlabData.object_kind !== 'merge_request') {
+					return new Response('ignored - not a merge request event', { status: 200 });
+				}
+
 				// 从环境变量获取飞书 Webhook URL
 				const FEISHU_WEBHOOK_URL = env.FEISHU_WEBHOOK_URL;
 
@@ -17,13 +29,6 @@ export default {
 				if (!FEISHU_WEBHOOK_URL) {
 					console.error('FEISHU_WEBHOOK_URL 环境变量未配置');
 					return new Response('Webhook URL not configured', { status: 500 });
-				}
-
-				const gitlabData = await request.json();
-
-				// 过滤非 MR 事件
-				if (gitlabData.object_kind !== 'merge_request') {
-					return new Response('ignored - not a merge request event', { status: 200 });
 				}
 
 				// 提取信息
